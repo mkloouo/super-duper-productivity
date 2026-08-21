@@ -49,7 +49,11 @@ describe('DesktopPanelButtonsComponent', () => {
   const cases: Array<[string, Partial<AppFeaturesConfig>, string[]]> = [
     [
       'all three enabled',
-      {},
+      {
+        isScheduleDayPanelEnabled: true,
+        isIssuesPanelEnabled: true,
+        isProjectNotesEnabled: true,
+      },
       [
         'e2e-toggle-schedule-day-panel',
         'e2e-toggle-issue-provider-panel',
@@ -70,7 +74,11 @@ describe('DesktopPanelButtonsComponent', () => {
     ['only notes', { ...NONE, isProjectNotesEnabled: true }, ['e2e-toggle-notes-btn']],
     [
       'schedule and notes',
-      { isIssuesPanelEnabled: false },
+      {
+        isScheduleDayPanelEnabled: true,
+        isIssuesPanelEnabled: false,
+        isProjectNotesEnabled: true,
+      },
       ['e2e-toggle-schedule-day-panel', 'e2e-toggle-notes-btn'],
     ],
   ];

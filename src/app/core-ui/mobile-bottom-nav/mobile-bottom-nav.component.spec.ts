@@ -137,11 +137,46 @@ describe('MobileBottomNavComponent', () => {
   });
 
   const cases: Array<[string, Partial<AppFeaturesConfig>]> = [
-    ['all three enabled', {}],
-    ['only schedule', { isIssuesPanelEnabled: false, isProjectNotesEnabled: false }],
-    ['only issues', { isScheduleDayPanelEnabled: false, isProjectNotesEnabled: false }],
-    ['only notes', { isScheduleDayPanelEnabled: false, isIssuesPanelEnabled: false }],
-    ['schedule and notes', { isIssuesPanelEnabled: false }],
+    [
+      'all three enabled',
+      {
+        isScheduleDayPanelEnabled: true,
+        isIssuesPanelEnabled: true,
+        isProjectNotesEnabled: true,
+      },
+    ],
+    [
+      'only schedule',
+      {
+        isScheduleDayPanelEnabled: true,
+        isIssuesPanelEnabled: false,
+        isProjectNotesEnabled: false,
+      },
+    ],
+    [
+      'only issues',
+      {
+        isScheduleDayPanelEnabled: false,
+        isIssuesPanelEnabled: true,
+        isProjectNotesEnabled: false,
+      },
+    ],
+    [
+      'only notes',
+      {
+        isScheduleDayPanelEnabled: false,
+        isIssuesPanelEnabled: false,
+        isProjectNotesEnabled: true,
+      },
+    ],
+    [
+      'schedule and notes',
+      {
+        isScheduleDayPanelEnabled: true,
+        isIssuesPanelEnabled: false,
+        isProjectNotesEnabled: true,
+      },
+    ],
   ];
 
   cases.forEach(([name, over]) => {
