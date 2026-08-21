@@ -122,6 +122,7 @@ import {
 } from '../add-subtask-input/add-subtask-input.component';
 import { AddSubtaskInputService } from '../add-subtask-input/add-subtask-input.service';
 import { getSubTaskTimeLeftForDisplay } from '../util/get-sub-task-time-left-for-display';
+import { TaskDetailPanelComponent } from '../task-detail-panel/task-detail-panel.component';
 
 @Component({
   selector: 'task',
@@ -167,6 +168,7 @@ import { getSubTaskTimeLeftForDisplay } from '../util/get-sub-task-time-left-for
     SwipeBlockComponent,
     SelectOptionRowComponent,
     AddSubtaskInputComponent,
+    forwardRef(() => TaskDetailPanelComponent),
   ],
 })
 export class TaskComponent implements OnDestroy, AfterViewInit {
@@ -206,6 +208,22 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
   isShowCloseButton = computed(() => {
     // Only show close button when task is selected AND not on mobile (bottom panel)
     return this.isSelected() && !this.layoutService.isXs();
+  });
+
+  // Mobile three-state row (Things3-style): collapsed -> selected (raised,
+  // preview) -> expanded (full detail inline, no side/bottom panel). Desktop
+  // keeps its existing dense-toolbar + side-panel behavior untouched.
+  //
+  // Selecting for the mobile preview state deliberately uses DONT_OPEN_PANEL
+  // so it doesn't trip the RightPanelComponent bottom-sheet effect (which
+  // watches selectedTaskId globally) -- see onMobileRowTap.
+  private readonly _wantsInlineExpand = signal(false);
+  isExpandedInline = computed(() => this.isSelected() && this._wantsInlineExpand());
+
+  private readonly _collapseInlineExpandOnDeselectEffect = effect(() => {
+    if (!this.isSelected()) {
+      untracked(() => this._wantsInlineExpand.set(false));
+    }
   });
 
   // Determines if the toggle detail panel button should be visible
@@ -1117,11 +1135,33 @@ export class TaskComponent implements OnDestroy, AfterViewInit {
     if (targetEl.closest('task-title')) {
       return;
     }
+    if (this.layoutService.isXs() && this.task().title.length) {
+      this.onMobileRowTap();
+      return;
+    }
     if (isTouchActive() && this.task().title.length) {
       this.toggleShowDetailPanel(event);
     } else {
       this.focusSelf();
     }
+  }
+
+  // Cycles collapsed -> selected (preview, no panel) -> expanded (inline
+  // detail) -> collapsed. Never opens the right-panel/bottom-sheet -- that's
+  // the desktop pattern this mobile row replaces.
+  onMobileRowTap(): void {
+    if (!this.isSelected()) {
+      this._taskService.setSelectedId(
+        this.task().id,
+        TaskDetailTargetPanel.DONT_OPEN_PANEL,
+      );
+      return;
+    }
+    if (!this.isExpandedInline()) {
+      this._wantsInlineExpand.set(true);
+      return;
+    }
+    this._taskService.setSelectedId(null);
   }
 
   focusPrevious(isFocusReverseIfNotPossible: boolean = false): void {

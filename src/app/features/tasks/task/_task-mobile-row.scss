@@ -1,0 +1,100 @@
+@use '../../../../styles/_globals.scss' as *;
+
+// Things3-style mobile row states (collapsed facets/date badge, selected
+// preview, expanded inline detail). Desktop keeps the existing dense
+// icon-button row in _task-controls.scss untouched.
+
+.mobile-facets {
+  display: flex;
+  align-items: center;
+  gap: var(--s-half);
+  margin-right: var(--s);
+  color: var(--text-color-muted);
+
+  .facet-glyph {
+    font-size: var(--font-size-lg);
+    width: var(--font-size-lg);
+    height: var(--font-size-lg);
+
+    &.isComplete {
+      color: var(--c-success, var(--c-accent));
+    }
+  }
+
+  .checklist-glyph {
+    display: flex;
+    align-items: center;
+    gap: var(--s-quarter);
+
+    .checklist-count {
+      font-size: var(--font-size-xs);
+    }
+  }
+}
+
+.mobile-date-badge,
+.mobile-preview-date-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--s-quarter);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+  color: var(--text-color-muted);
+
+  mat-icon {
+    font-size: var(--font-size-md);
+    width: var(--font-size-md);
+    height: var(--font-size-md);
+  }
+
+  &.isOverdue,
+  &.isApproaching {
+    color: var(--c-warn);
+  }
+
+  &.isToday {
+    color: var(--c-accent);
+  }
+}
+
+.mobile-preview {
+  padding: 0 var(--s2) var(--s);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-half);
+}
+
+.mobile-preview-notes {
+  font-size: var(--font-size-sm);
+  color: var(--text-color-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.mobile-preview-date-chip {
+  align-self: flex-start;
+  padding: var(--s-quarter) var(--s-half);
+  border-radius: var(--card-border-radius);
+  background: var(--bg-lighter);
+
+  &.isOverdue {
+    background: color-mix(in srgb, var(--c-warn) 15%, var(--bg-lighter));
+  }
+}
+
+.mobile-expanded {
+  border-top: 1px solid var(--extra-border-color);
+  padding-top: var(--s);
+}
+
+.mobile-expanded-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--s-half);
+  padding: var(--s-half) var(--s2) 0;
+  border-top: 1px solid var(--extra-border-color);
+  margin-top: var(--s);
+}

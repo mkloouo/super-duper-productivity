@@ -2,6 +2,7 @@
 @use './task.component.mixins' as *;
 @use './task-base';
 @use './task-controls';
+@use './task-mobile-row';
 
 :host.isDragReady:not(.cdk-drag-placeholder) {
   background: var(--bg-lighter);
