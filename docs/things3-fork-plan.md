@@ -90,6 +90,21 @@ Build against the screenshots, using the token system in `docs/styling-guide.md`
 
 Treat any additional Things3/Superlist screenshots the user sends as incremental refinements layered onto Phase 2's components (e.g. exact spacing, animation/transition details, additional smart-list or dialog patterns) rather than a new phase — fold them into the same components as they arrive.
 
+**Reference batch received 2026-08-21** (~50 real Things3 iOS screenshots, filed for later — not yet implemented, sent explicitly as "does not mean you have to implement anything right now"):
+
+- **Sidebar order confirmed**: Quick Find search bar, then Inbox (count badge) / Today (star, count) / Upcoming / Anytime / Someday / Logbook, then flat projects, then collapsible Areas with member projects indented — matches what checkpoint 1–2 already built.
+- **Floating "+" button is 3 options, not 2**: "New To-Do" / "New Project" / "New Area" — New To-Do (the primary action) is missing from the current implementation, which only offers New Project / New Project Folder. Fix this first when picking Phase 3 back up.
+- **Quick Find**, tapped, shows the _same_ Inbox/Today/Upcoming/Anytime/Someday/Logbook + projects list as the sidebar, filterable — i.e. it's the sidebar's own content made searchable, not a separate results view. Relevant to the still-deferred inline-search item from checkpoint 1.
+- **Today view**: project names render as their own clickable header rows ("Test project ›") grouping the tasks under them, not per-task inline labels.
+- **Selected/expanded row's facet toolbar is tag/checklist/flag icons** (add-a-facet actions), not the Move/Delete/More toolbar checkpoint 3 built for the _expanded_ state. Things3 keeps Move/Delete/⋯ as the project-level "…" context menu (see below) and swipe actions, not the per-row expanded toolbar — worth reconciling against checkpoint 3's choice when Phase 3 starts.
+- **Repeat config sheet reference** (matches the plan's existing description closely): "After Completion"/"Regularly" segmented control, "Every [N] month", "On [day]", computed "Next" date, "Ends: Never", plus "Add Deadline"/"Add Reminder" links below — concrete layout reference for the still-unbuilt repeat-config modal (Phase 2 item, not yet started).
+- **"When?" / Deadline picker sheets**: Today / This Evening / calendar grid / "Someday" shortcut / "Add Reminder" link / red "Clear" button at the bottom — reference for a redesigned date-picker dialog (not currently in scope as a named Phase 2 item; consider whether it belongs there).
+- **"Move" sheet**: dedicated sheet listing Inbox / No Project / flat projects / Areas with nested projects — closer to a purpose-built picker than the existing move-to-project `mat-menu` checkpoint 3 reused; revisit if the reused menu doesn't feel right on-device.
+- **Tags sheet**: header "Tags", checklist-style list of tag chips, "Manage Tags"/"New Tag" buttons at the bottom.
+- **Project "…" menu**: Complete Project / When / Add Tags / Add Deadline / Repeat… / Move / Duplicate / Delete Project / Share.
+- **"Complete Project" with open to-dos**: confirmation prompt — "There are still N to-dos in this project that haven't completed. What would you like to do with them?" — Mark as Completed / Mark as Canceled. Not currently modeled by this app's project-completion flow at all; a bigger, separate consideration if pursued (project completion here doesn't cascade to open tasks today).
+- **Checklist row creation**: circle-bullet input rows appear inline under the task as you add them, each with a drag handle — matches the plan's existing checklist description; no new information.
+
 ### Verification
 
 - Run `npm run checkFile <path>` on every `.ts`/`.scss` file touched.
