@@ -1,21 +1,3 @@
-<button
-  [routerLink]="[base, contextId, 'history']"
-  mat-menu-item
->
-  <mat-icon>history</mat-icon>
-  <span class="text">{{ T.MH.HISTORY | translate }}</span>
-</button>
-
-@if (isForProject || contextId === TODAY_TAG_ID) {
-  <button
-    [routerLink]="[base, contextId, 'metrics']"
-    mat-menu-item
-  >
-    <mat-icon>donut_large</mat-icon>
-    <span class="text">{{ T.MH.METRICS | translate }}</span>
-  </button>
-}
-
 @if (contextId === TODAY_TAG_ID) {
   <button
     (click)="unplanAllTodayTasks()"

@@ -1,10 +1,14 @@
 import { ConfigFormSection, AppFeaturesConfig } from '../global-config.model';
 import { T } from '../../../t.const';
-import { IS_DONATION_UI_RESTRICTED } from '../../../app.constants';
 
-export const EXPERIMENTAL_APP_FEATURE_KEYS: ReadonlyArray<keyof AppFeaturesConfig> = [
-  'isEnableUserProfiles',
-];
+// Note: several AppFeaturesConfig keys (isTimeTrackingEnabled, isFocusModeEnabled,
+// isPlannerEnabled, isBoardsEnabled, isScheduleDayPanelEnabled, isIssuesPanelEnabled,
+// isDonatePageEnabled, isFinishDayEnabled, isHabitsEnabled, isEnableUserProfiles) are
+// permanently disabled for this fork (see default-global-config.const.ts) and have no
+// toggle here on purpose — their routes/nav/UI were removed, so re-enabling them via
+// settings would just produce dead links. The model fields themselves are kept
+// untouched for sync/data compatibility with the mainstream app.
+export const EXPERIMENTAL_APP_FEATURE_KEYS: ReadonlyArray<keyof AppFeaturesConfig> = [];
 
 export const APP_FEATURES_FORM_CFG: ConfigFormSection<AppFeaturesConfig> = {
   title: T.GCF.APP_FEATURES.TITLE,
@@ -12,59 +16,11 @@ export const APP_FEATURES_FORM_CFG: ConfigFormSection<AppFeaturesConfig> = {
   help: T.GCF.APP_FEATURES.HELP,
   items: [
     {
-      key: 'isTimeTrackingEnabled',
-      type: 'slide-toggle',
-      props: {
-        label: T.GCF.APP_FEATURES.TIME_TRACKING,
-        icon: 'play_arrow',
-      },
-    },
-    {
-      key: 'isFocusModeEnabled',
-      type: 'slide-toggle',
-      templateOptions: {
-        label: T.GCF.APP_FEATURES.FOCUS_MODE,
-        icon: 'center_focus_strong',
-      },
-    },
-    {
       key: 'isSchedulerEnabled',
       type: 'slide-toggle',
       templateOptions: {
         label: T.GCF.APP_FEATURES.SCHEDULE,
         icon: 'schedule',
-      },
-    },
-    {
-      key: 'isPlannerEnabled',
-      type: 'slide-toggle',
-      templateOptions: {
-        label: T.GCF.APP_FEATURES.PLANNER,
-        icon: 'edit_calendar',
-      },
-    },
-    {
-      key: 'isBoardsEnabled',
-      type: 'slide-toggle',
-      templateOptions: {
-        label: T.GCF.APP_FEATURES.BOARDS,
-        icon: 'grid_view',
-      },
-    },
-    {
-      key: 'isScheduleDayPanelEnabled',
-      type: 'slide-toggle',
-      templateOptions: {
-        label: T.GCF.APP_FEATURES.SCHEDULE_DAY_PANEL,
-        icon: 'schedule',
-      },
-    },
-    {
-      key: 'isIssuesPanelEnabled',
-      type: 'slide-toggle',
-      templateOptions: {
-        label: T.GCF.APP_FEATURES.ISSUES_PANEL,
-        icon: 'webhook',
       },
     },
     {
@@ -89,51 +45,6 @@ export const APP_FEATURES_FORM_CFG: ConfigFormSection<AppFeaturesConfig> = {
       templateOptions: {
         label: T.GCF.APP_FEATURES.SEARCH,
         icon: 'search',
-      },
-    },
-    {
-      key: 'isDonatePageEnabled',
-      type: 'slide-toggle',
-      // Donations are fully hidden on native iOS and macOS desktop builds, so
-      // this toggle would be inert there — hide it to avoid a dead control.
-      hideExpression: () => IS_DONATION_UI_RESTRICTED,
-      templateOptions: {
-        label: T.GCF.APP_FEATURES.DONATE_PAGE,
-        icon: 'favorite',
-      },
-    },
-    {
-      key: 'isFinishDayEnabled',
-      type: 'slide-toggle',
-      templateOptions: {
-        label: T.GCF.APP_FEATURES.FINISH_DAY,
-        icon: 'done_all',
-      },
-    },
-    {
-      key: 'isHabitsEnabled',
-      type: 'slide-toggle',
-      templateOptions: {
-        label: T.GCF.APP_FEATURES.HABITS,
-        icon: 'heart_check',
-      },
-    },
-    {
-      key: 'isEnableUserProfiles',
-      type: 'slide-toggle',
-      templateOptions: {
-        label: T.GCF.APP_FEATURES.USER_PROFILES,
-        description: T.GCF.APP_FEATURES.USER_PROFILES_HINT,
-        icon: 'account_circle',
-      },
-    },
-    {
-      hideExpression: (m: AppFeaturesConfig) => !m.isEnableUserProfiles,
-      type: 'tpl',
-      templateOptions: {
-        tag: 'div',
-        text: T.USER_PROFILES.REMOVAL_WARNING,
-        class: 'sync-warning',
       },
     },
   ],

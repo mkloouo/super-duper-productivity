@@ -20,20 +20,24 @@ const defaultTaskNotesTemplate = `**How can I best achieve it now?**
 export const DEFAULT_DAY_START = '9:00';
 export const DEFAULT_GLOBAL_CONFIG: GlobalConfigState = {
   appFeatures: {
-    isTimeTrackingEnabled: true,
-    isFocusModeEnabled: true,
-    isSchedulerEnabled: true,
-    isPlannerEnabled: true,
-    isBoardsEnabled: true,
-    isScheduleDayPanelEnabled: true,
-    isIssuesPanelEnabled: true,
+    // Kept: Things3/Superlist-scoped fork — tasks + projects only.
+    isSchedulerEnabled: true, // powers the kept "Upcoming" day-timeline view
     isProjectNotesEnabled: true,
     isSyncIconEnabled: true,
-    isSearchEnabled: true,
-    isDonatePageEnabled: true,
+    isSearchEnabled: true, // dedicated Search page kept until Phase 2 ships inline Quick Find
+    // Cut: out of scope for this fork, see docs plan — kept as dormant config
+    // fields (never remove them, downstream code/persisted user configs still
+    // reference these keys) with their features permanently disabled instead.
+    isTimeTrackingEnabled: false,
+    isFocusModeEnabled: false,
+    isPlannerEnabled: false,
+    isBoardsEnabled: false,
+    isScheduleDayPanelEnabled: false,
+    isIssuesPanelEnabled: false,
+    isDonatePageEnabled: false,
     isEnableUserProfiles: false,
-    isHabitsEnabled: true,
-    isFinishDayEnabled: true,
+    isHabitsEnabled: false,
+    isFinishDayEnabled: false,
   },
   localization: {
     lng: undefined,

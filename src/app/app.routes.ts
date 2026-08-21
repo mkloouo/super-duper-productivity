@@ -3,7 +3,6 @@ import { Routes } from '@angular/router';
 import {
   ActiveWorkContextGuard,
   DefaultStartPageGuard,
-  DonatePageGuard,
   FocusOverlayOpenGuard,
   ValidProjectIdGuard,
   ValidTagIdGuard,
@@ -66,28 +65,9 @@ export const APP_ROUTES: Routes = [
     canActivate: [FocusOverlayOpenGuard],
   },
   {
-    path: 'planner',
-    loadComponent: () => import('./routes/pages.routes').then((m) => m.PlannerComponent),
-    data: { page: 'planner' },
-    canActivate: [FocusOverlayOpenGuard],
-  },
-  {
     path: 'schedule',
     loadComponent: () => import('./routes/pages.routes').then((m) => m.ScheduleComponent),
     data: { page: 'schedule' },
-    canActivate: [FocusOverlayOpenGuard],
-  },
-  {
-    path: 'boards',
-    loadComponent: () => import('./routes/pages.routes').then((m) => m.BoardsComponent),
-    data: { page: 'boards' },
-    canActivate: [FocusOverlayOpenGuard],
-  },
-  {
-    path: 'habits',
-    loadComponent: () =>
-      import('./routes/pages.routes').then((m) => m.HabitPageComponent),
-    data: { page: 'habits' },
     canActivate: [FocusOverlayOpenGuard],
   },
   {
@@ -96,13 +76,6 @@ export const APP_ROUTES: Routes = [
       import('./routes/pages.routes').then((m) => m.ArchivedProjectsPageComponent),
     data: { page: 'archived-projects' },
     canActivate: [FocusOverlayOpenGuard],
-  },
-  {
-    path: 'donate',
-    loadComponent: () =>
-      import('./routes/pages.routes').then((m) => m.DonatePageComponent),
-    data: { page: 'donate' },
-    canActivate: [DonatePageGuard, FocusOverlayOpenGuard],
   },
   {
     path: 'contrast-test',
