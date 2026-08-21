@@ -642,6 +642,10 @@ export class MagicNavConfigService {
     this._createNewTag();
   }
 
+  createNewProjectFolder(): void {
+    this._openCreateProjectFolder();
+  }
+
   disableFeature(configKey: keyof AppFeaturesConfig, featureName: string): void {
     this._configService.updateSection(
       'appFeatures',

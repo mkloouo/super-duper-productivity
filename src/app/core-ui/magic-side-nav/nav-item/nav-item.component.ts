@@ -146,6 +146,29 @@ export class NavItemComponent {
     return !!wc && wc.taskIds.length > 0;
   });
 
+  // Things3-style completion ring — projects only, never Today/Inbox/tags.
+  // null hides the ring entirely (wrong context type or nothing to show yet).
+  projectProgressRatio = computed<number | null>(() => {
+    const wc = this.workContext();
+    if (this.mode() !== 'work' || this.type() !== WorkContextType.PROJECT || !wc) {
+      return null;
+    }
+    const total = wc.taskIds.length;
+    if (total === 0) {
+      return null;
+    }
+    const done = total - this.nrOfOpenTasks();
+    return done / total;
+  });
+
+  // SVG stroke-dashoffset for a r=9 circle (circumference ~56.5), 0 progress
+  // = full offset (empty ring), 1 = no offset (full ring).
+  private static readonly _RING_CIRCUMFERENCE = 2 * Math.PI * 9;
+  projectRingDashOffset = computed<number>(() => {
+    const ratio = this.projectProgressRatio() ?? 0;
+    return NavItemComponent._RING_CIRCUMFERENCE * (1 - ratio);
+  });
+
   isActiveContext = computed<boolean>(() => {
     const wc = this.workContext();
     return !!wc && wc.id === this.activeWorkContextId();

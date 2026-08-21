@@ -213,6 +213,34 @@
         }
       </ul>
     }
+
+    <div class="fab-add-container">
+      <button
+        mat-fab
+        class="fab-add-btn"
+        color="primary"
+        [matMenuTriggerFor]="addMenu"
+        [attr.aria-label]="T.MH.CREATE_PROJECT | translate"
+      >
+        <mat-icon>add</mat-icon>
+      </button>
+    </div>
+    <mat-menu #addMenu="matMenu">
+      <button
+        mat-menu-item
+        (click)="addNewProject()"
+      >
+        <mat-icon>assignment</mat-icon>
+        <span>{{ T.MH.CREATE_PROJECT | translate }}</span>
+      </button>
+      <button
+        mat-menu-item
+        (click)="addNewProjectFolder()"
+      >
+        <mat-icon>create_new_folder</mat-icon>
+        <span>{{ T.F.PROJECT_FOLDER.TOOLTIP_CREATE | translate }}</span>
+      </button>
+    </mat-menu>
   </nav>
 }
 

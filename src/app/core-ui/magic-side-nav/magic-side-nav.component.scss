@@ -310,6 +310,22 @@
   -webkit-app-region: no-drag;
 }
 
+// Floating add button — pinned to the bottom of the (independently
+// scrolling) drawer, same pattern as the persistent add-task FAB in
+// mobile-bottom-nav.component.
+.fab-add-container {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--s2);
+  pointer-events: none;
+
+  .fab-add-btn {
+    pointer-events: auto;
+  }
+}
+
 // Resize handle (now positioned relative to host component)
 .resize-handle {
   position: absolute;

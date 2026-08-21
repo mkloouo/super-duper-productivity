@@ -13,13 +13,37 @@
     mat-menu-item
     (click)="clicked.emit()"
   >
-    <mat-icon
-      class="nav-icon"
-      [style.color]="workContextIconColor() ?? null"
-      [class.nav-icon-emoji]="isWorkContextEmojiIcon()"
-      [class.drag-handle]="defaultIcon() !== 'today' && defaultIcon() !== 'inbox'"
-      >{{ workContext()!.icon || defaultIcon() }}
-    </mat-icon>
+    <span class="nav-icon-slot">
+      <mat-icon
+        class="nav-icon"
+        [style.color]="workContextIconColor() ?? null"
+        [class.nav-icon-emoji]="isWorkContextEmojiIcon()"
+        [class.drag-handle]="defaultIcon() !== 'today' && defaultIcon() !== 'inbox'"
+        >{{ workContext()!.icon || defaultIcon() }}
+      </mat-icon>
+
+      @if (projectProgressRatio() !== null) {
+        <svg
+          class="project-progress-ring"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <circle
+            class="ring-track"
+            cx="12"
+            cy="12"
+            r="9"
+          />
+          <circle
+            class="ring-progress"
+            cx="12"
+            cy="12"
+            r="9"
+            [style.stroke-dashoffset.px]="projectRingDashOffset()"
+          />
+        </svg>
+      }
+    </span>
 
     <span
       class="nav-label"

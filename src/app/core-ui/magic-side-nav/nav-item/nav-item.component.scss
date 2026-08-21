@@ -283,6 +283,42 @@ button[mat-menu-item].nav-link.active {
   }
 }
 
+.nav-icon-slot {
+  position: relative;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.project-progress-ring {
+  position: absolute;
+  inset: 0;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  transform: rotate(-90deg);
+
+  circle {
+    fill: none;
+    stroke-width: 1.5;
+  }
+
+  .ring-track {
+    stroke: var(--sidenav-text-secondary);
+    opacity: 0.25;
+  }
+
+  .ring-progress {
+    stroke: var(--c-primary);
+    stroke-linecap: round;
+    stroke-dasharray: 56.5; // 2 * PI * r(9), matches _RING_CIRCUMFERENCE
+    transition: stroke-dashoffset var(--transition-duration-m, 0.25s) ease;
+  }
+}
+
 .expand-icon {
   transition: transform 0.2s ease;
 }

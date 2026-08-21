@@ -41,6 +41,8 @@ import { SwipeDirective } from '../../ui/swipe-gesture/swipe.directive';
 import { DataInitStateService } from '../../core/data-init/data-init-state.service';
 import { TranslatePipe } from '@ngx-translate/core';
 import { T } from '../../t.const';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIcon } from '@angular/material/icon';
 
 // 56px = 24px icon + 16px (var(--s2)) padding on each side, so the left-aligned
 // nav icons sit centered in the collapsed rail.
@@ -61,6 +63,8 @@ const INITIAL_ENTER_ANIMATION_DURATION_MS = 425;
     SwipeDirective,
     CdkTrapFocus,
     TranslatePipe,
+    MatButtonModule,
+    MatIcon,
   ],
   templateUrl: './magic-side-nav.component.html',
   styleUrl: './magic-side-nav.component.scss',
@@ -404,6 +408,15 @@ export class MagicSideNavComponent implements OnDestroy, AfterViewInit {
     if (this.isMobile()) {
       this.showMobileMenuOverlay.set(false);
     }
+  }
+
+  // Floating add button (bottom of the drawer) — new project vs. new area
+  addNewProject(): void {
+    this._sideNavConfigService.createNewProject();
+  }
+
+  addNewProjectFolder(): void {
+    this._sideNavConfigService.createNewProjectFolder();
   }
 
   // Resize functionality
