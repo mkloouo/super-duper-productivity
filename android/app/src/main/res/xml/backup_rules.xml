@@ -3,5 +3,5 @@
   <!-- Prevent restored legacy launch_mode from pinning fresh installs to online mode. -->
   <exclude
     domain="sharedpref"
-    path="com.superproductivity.superproductivity_preferences.xml" />
+    path="com.mkloouo.super.duper.productivity_preferences.xml" />
 </full-backup-content>
