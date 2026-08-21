@@ -1,0 +1,26 @@
+:host {
+  display: block;
+  padding: var(--s2);
+}
+
+.tasks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-half);
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s);
+  color: var(--text-color-muted);
+  padding: var(--s4) var(--s2);
+  text-align: center;
+
+  mat-icon {
+    font-size: 40px;
+    width: 40px;
+    height: 40px;
+  }
+}

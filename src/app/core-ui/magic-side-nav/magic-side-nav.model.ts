@@ -47,6 +47,7 @@ export interface NavRouteItem extends NavBaseItem {
   label: string;
   icon: string;
   route: string;
+  count?: number;
 }
 
 export interface NavHrefItem extends NavBaseItem {

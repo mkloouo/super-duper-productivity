@@ -1,0 +1,15 @@
+@if (tasks().length) {
+  <div
+    [@standardList]="tasks().length"
+    class="tasks"
+  >
+    @for (task of tasks(); track task.id) {
+      <planner-task [task]="task"></planner-task>
+    }
+  </div>
+} @else {
+  <div class="empty-state">
+    <mat-icon>{{ icon() }}</mat-icon>
+    <p>{{ emptyMessage() | translate }}</p>
+  </div>
+}

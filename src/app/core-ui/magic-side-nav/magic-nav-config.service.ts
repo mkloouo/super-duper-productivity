@@ -37,6 +37,11 @@ import { GlobalConfigService } from '../../features/config/global-config.service
 import { AppFeaturesConfig } from '../../features/config/global-config.model';
 import { SnackService } from '../../core/snack/snack.service';
 import { IS_DONATION_UI_RESTRICTED } from '../../app.constants';
+import {
+  selectAnytimeTasks,
+  selectLogbookTasks,
+  selectSomedayTasks,
+} from '../../features/tasks/store/smart-list.selectors';
 
 @Injectable({
   providedIn: 'root',
@@ -113,6 +118,15 @@ export class MagicNavConfigService {
   private readonly isSearchEnabled = computed(
     () => this._configService.appFeatures().isSearchEnabled,
   );
+  private readonly _anytimeTasks = toSignal(this._store.select(selectAnytimeTasks), {
+    initialValue: [],
+  });
+  private readonly _somedayTasks = toSignal(this._store.select(selectSomedayTasks), {
+    initialValue: [],
+  });
+  private readonly _logbookTasks = toSignal(this._store.select(selectLogbookTasks), {
+    initialValue: [],
+  });
   readonly areInitialTreesReady = computed(() => {
     const visibleProjects = this._visibleProjects();
     const tags = this._tags();
@@ -243,13 +257,6 @@ export class MagicNavConfigService {
             } as NavItem,
           ]
         : []),
-      {
-        type: 'route',
-        id: 'scheduled-list',
-        label: T.MH.ALL_PLANNED_LIST,
-        icon: 'list',
-        route: '/scheduled-list',
-      },
 
       // Help Menu (rendered as mat-menu)
       // Donation links are disabled on native iOS and every macOS desktop build
@@ -370,19 +377,7 @@ export class MagicNavConfigService {
     const mainContext = this._mainWorkContext();
     const inboxContext = this._inboxContext();
 
-    if (mainContext) {
-      items.push({
-        type: 'workContext',
-        id: `main-${mainContext.id}`,
-        label: mainContext.title,
-        icon: mainContext.icon || 'today',
-        route: `/tag/${mainContext.id}/tasks`,
-        workContext: mainContext,
-        workContextType: WorkContextType.TAG,
-        defaultIcon: 'today',
-      });
-    }
-
+    // Things3-style order: Inbox first, then Today.
     if (inboxContext) {
       items.push({
         type: 'workContext',
@@ -393,6 +388,19 @@ export class MagicNavConfigService {
         workContext: inboxContext,
         workContextType: WorkContextType.PROJECT,
         defaultIcon: 'inbox',
+      });
+    }
+
+    if (mainContext) {
+      items.push({
+        type: 'workContext',
+        id: `main-${mainContext.id}`,
+        label: mainContext.title,
+        icon: mainContext.icon || 'today',
+        route: `/tag/${mainContext.id}/tasks`,
+        workContext: mainContext,
+        workContextType: WorkContextType.TAG,
+        defaultIcon: 'today',
       });
     }
 
@@ -413,6 +421,9 @@ export class MagicNavConfigService {
       });
     }
 
+    // The remaining four are core Things3-style smart lists, not optional
+    // AppFeaturesConfig toggles — always shown (isSchedulerEnabled still
+    // gates Upcoming since it's the one that existed pre-fork).
     if (this.isSchedulerEnabled()) {
       items.push({
         type: 'route',
@@ -423,6 +434,33 @@ export class MagicNavConfigService {
         featureConfigKey: 'isSchedulerEnabled',
       });
     }
+
+    items.push({
+      type: 'route',
+      id: 'anytime',
+      label: T.MH.ANYTIME,
+      icon: 'wb_twilight',
+      route: '/anytime',
+      count: this._anytimeTasks().length,
+    });
+
+    items.push({
+      type: 'route',
+      id: 'someday',
+      label: T.MH.SOMEDAY,
+      icon: 'inventory_2',
+      route: '/someday',
+      count: this._somedayTasks().length,
+    });
+
+    items.push({
+      type: 'route',
+      id: 'logbook',
+      label: T.MH.LOGBOOK,
+      icon: 'check_circle',
+      route: '/logbook',
+      count: this._logbookTasks().length,
+    });
 
     if (this.isBoardsEnabled()) {
       items.push({

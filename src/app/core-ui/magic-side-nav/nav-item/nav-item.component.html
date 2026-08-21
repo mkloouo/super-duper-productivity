@@ -145,6 +145,10 @@
       }
     </a>
 
+    @if ((count() ?? 0) > 0) {
+      <div class="task-count">{{ count() }}</div>
+    }
+
     @if (featureConfigKey()) {
       <button
         #featureSettingsBtn

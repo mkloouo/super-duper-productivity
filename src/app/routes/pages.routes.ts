@@ -3,6 +3,9 @@ export { ConfigPageComponent } from '../pages/config-page/config-page.component'
 export { SearchPageComponent } from '../pages/search-page/search-page.component';
 export { SyncConflictsPageComponent } from '../pages/sync-conflicts-page/sync-conflicts-page.component';
 export { ScheduledListPageComponent } from '../pages/scheduled-list-page/scheduled-list-page.component';
+export { AnytimePageComponent } from '../pages/anytime-page/anytime-page.component';
+export { SomedayPageComponent } from '../pages/someday-page/someday-page.component';
+export { LogbookPageComponent } from '../pages/logbook-page/logbook-page.component';
 export { ScheduleComponent } from '../features/schedule/schedule/schedule.component';
 export { ContrastTestComponent } from '../pages/contrast-test/contrast-test.component';
 export { PluginIndexComponent } from '../plugins/ui/plugin-index/plugin-index.component';

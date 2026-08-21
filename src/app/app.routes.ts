@@ -71,6 +71,27 @@ export const APP_ROUTES: Routes = [
     canActivate: [FocusOverlayOpenGuard],
   },
   {
+    path: 'anytime',
+    loadComponent: () =>
+      import('./routes/pages.routes').then((m) => m.AnytimePageComponent),
+    data: { page: 'anytime' },
+    canActivate: [FocusOverlayOpenGuard],
+  },
+  {
+    path: 'someday',
+    loadComponent: () =>
+      import('./routes/pages.routes').then((m) => m.SomedayPageComponent),
+    data: { page: 'someday' },
+    canActivate: [FocusOverlayOpenGuard],
+  },
+  {
+    path: 'logbook',
+    loadComponent: () =>
+      import('./routes/pages.routes').then((m) => m.LogbookPageComponent),
+    data: { page: 'logbook' },
+    canActivate: [FocusOverlayOpenGuard],
+  },
+  {
     path: 'archived-projects',
     loadComponent: () =>
       import('./routes/pages.routes').then((m) => m.ArchivedProjectsPageComponent),

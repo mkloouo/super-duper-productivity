@@ -119,6 +119,9 @@ export class NavItemComponent {
   // Feature flag key for disable-feature context menu
   featureConfigKey = input<keyof AppFeaturesConfig | undefined>(undefined);
 
+  // Optional count badge for presentational route items (smart lists)
+  count = input<number | undefined>(undefined);
+
   // Events
   clicked = output<void>();
 
