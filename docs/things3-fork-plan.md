@@ -1,0 +1,106 @@
+# Things3/Superlist-style fork: plan
+
+## Discussion summary
+
+- **Goal**: strip this personal fork down to just Tasks + Projects (organized into Areas), redesigned toward Things3/Superlist's UX, since the full app feels bloated and feature-heavy.
+- **Scope decided through conversation** (not a first guess — walked through platform, data-compatibility, and per-feature keep/cut questions explicitly):
+  - **Platform**: mobile (Android/iOS via Capacitor) only matters. Desktop/web builds are not a concern and can be left as-is or break.
+  - **Data compatibility**: the on-disk/sync data format must stay compatible with the mainstream (upstream) repo. This is not a data-model rewrite — it's a UI/feature-surface reduction. Persisted schema, op-log/sync wire format, and model shapes (`Task`, etc.) stay untouched.
+  - **Keep-list** (confirmed against the user's own Things3 screenshots — see below): due dates & deadlines, reminders/notifications, recurring/repeating tasks (relative "after completion" and fixed "regularly" modes, each with deadline-offset and reminder sub-settings), the calendar/day-timeline "Upcoming" view **including external calendar-feed events shown inline** (`calendar-integration` is kept, not dropped), tags, sections/headings inside a project, areas/folders grouping projects, Today/Upcoming/Anytime/Someday/Logbook smart lists, file attachments on tasks, and a lightweight inline "Quick Find" search (not the existing dedicated Search *page*).
+  - **Cut**: time tracking, focus mode/Pomodoro, Kanban boards, metrics/worklog/history, habits/counters, issue-provider integrations (Jira/GitLab/GitHub/Nextcloud/Caldav/OpenProject/Redmine/Plainspace), multi-user profiles, idle/tracking-reminder/take-a-break/end-of-day rituals, onboarding tours, plugin UI (plugin *runtime* stays, just no nav entry).
+- **Two corrections made after the user supplied real Things3 screenshots** (sidebar, project task list in collapsed/expanded states, Upcoming view, Repeat configuration sheet):
+  1. Things3's sidebar has a pinned "Quick Find" search bar — so the dedicated Search *page* goes, but search itself stays as an inline affordance, not dropped outright as first assumed.
+  2. Things3's Upcoming view renders external calendar events inline (colored dot-marker rows under each date) — so `calendar-integration` is kept specifically to feed that view, reversing an earlier plan to cut it.
+- **Guiding principle for every removal**: hide/delete the *presentation layer* (routes, nav entries, panels, UI-only components/effects), never touch the *data layer* (`op-log/model/model-config.ts`, `shared-schema` entity types, `CURRENT_SCHEMA_VERSION`, `Task`/`ArchiveTask` fields, the meta-reducer cascades in `root-store/meta/task-shared-meta-reducers/`). Removed features become dormant/orphaned state — still registered, still synced transparently, just with no UI — which is what "mainstream-compatible" requires.
+
+## The plan
+
+### Context
+
+`super-duper-productivity` is a full-featured Angular/Electron/Capacitor todo+time-tracking app with ~40 feature modules (planner, boards, schedule, focus mode, issue-provider integrations, metrics, habits, multi-profile, plugins, etc.). The user finds the app bloated and wants a personal fork that behaves and feels like Things3/Superlist: just tasks organized into projects (grouped into areas), with the scheduling/organization primitives those two apps actually have — nothing else. They only use and care about the **mobile app** (Android/iOS via Capacitor); desktop/web builds are not a concern and can be left as-is or break, since this is a personal fork, not an upstream contribution. Critically, **the on-disk/sync data format must stay compatible with the mainstream (upstream) repo** — so this cannot be a data-model rewrite; it has to be a UI/feature-surface reduction that leaves the persisted schema, op-log/sync wire format, and `Task`/other model shapes untouched.
+
+**Confirmed keep-list**: due dates & deadlines, reminders/notifications, recurring/repeating tasks (relative "after completion" and fixed "regularly" modes, each with its own deadline-offset and reminder sub-settings), the calendar/day-timeline "Upcoming" view **including external calendar-feed events shown inline** (do not drop `calendar-integration`), tags, sections/headings inside a project, areas/folders grouping projects, Today/Upcoming/Anytime/Someday/Logbook smart lists, file attachments on tasks, and a lightweight inline "Quick Find" search (not the existing dedicated Search *page* — see Phase 2). Everything else the app currently has (time tracking, focus mode/Pomodoro, Kanban boards, metrics/worklog/history, habits/counters, issue-provider integrations, multi-user profiles, idle/tracking-reminder/take-a-break/end-of-day rituals, onboarding tours, plugin UI) is out of scope for the new UX.
+
+The user has supplied Things3 screenshots (sidebar, project task list in collapsed/expanded states, Upcoming view, Repeat configuration sheet) that concretely drive Phase 2 below.
+
+### Guiding principle: hide the presentation layer, never touch the data layer
+
+Because data must stay mainstream-compatible, every removal follows one rule:
+
+- **Delete/hide**: routes, pages, nav entries, header buttons, panels, and UI-only components/effects for out-of-scope features (e.g. `IssuePanelComponent`, boards Kanban UI, focus-mode overlay, metric charts, habit tracker UI, worklog/history reports, search page, onboarding wizard, multi-profile switcher, plugin nav/panel UI).
+- **Keep untouched, even if now unused by the UI**: `op-log/model/model-config.ts`, `packages/shared-schema` entity types, `CURRENT_SCHEMA_VERSION`, the `Task`/`ArchiveTask` model fields (`issueId`, `timeSpent`, etc.), and every meta-reducer cascade in `src/app/root-store/meta/task-shared-meta-reducers/` (project/tag/section/repeat-cfg deletion cleanup, including the parts that touch time-tracking) — these are structural to sync correctness and to reading data written by a mainstream client.
+- Never bump `CURRENT_SCHEMA_VERSION`, never remove entries from `MODEL_CONFIGS` / `ENTITY_TYPES` / `entity-registry.ts`, never strip fields off persisted models.
+
+This means "removed" features become dormant/orphaned state (still registered, still synced transparently, just with no UI), not deleted data.
+
+No platform-gating work is needed: since only the mobile build matters to the user, nav/route/shell changes apply globally rather than being conditioned on `IS_ANDROID`/`IS_IOS`.
+
+### Phase 1 — Mechanical scope cut (routes, nav, panels, store registration)
+
+Remove or stop registering, per feature, using the pattern established by the existing `AppFeaturesConfig` flags (`src/app/features/config/global-config.model.ts`, `default-global-config.const.ts`) plus direct deletion of their route/nav/panel wiring:
+
+- **Routes**: delete `planner` (board page only, see exception below), `boards`, `habits`, `donate`, `active/:subPageType` config sub-pages tied to removed features, and trim `context.routes.ts` (`metrics`, `daily-summary`, `worklog`, `quick-history`; `history` dropped too — user didn't ask to keep it) — in `src/app/app.routes.ts`, `src/app/routes/pages.routes.ts`, `src/app/routes/context.routes.ts`.
+  - **Exception**: keep the day-timeline `schedule` route/page and redesign it into the Upcoming view described in Phase 2. Keep `calendar-integration` (external ICS/CalDAV/Google Calendar import) too — external events render inline in Upcoming.
+  - **Exception**: keep `planner`'s underlying service/store logic (it computes `TODAY_TAG`/`task.dueDay` membership — see `planner-shared.reducer.ts`) but delete its dedicated multi-day drag/drop board *page* — Today/Upcoming/Anytime/Someday are served by `work-context`/`tag` smart-list logic, not the Planner board UI.
+  - **Correction**: keep the `search` route/logic as a lightweight inline "Quick Find" affordance in the side nav (Phase 2) rather than deleting it outright — only the current dedicated full-page Search UI goes away, not search capability itself.
+- **Nav config**: `src/app/core-ui/magic-side-nav/magic-nav-config.service.ts` — already computed from `AppFeaturesConfig` flags, so flipping those off removes Planner/Boards/Habits/Donate entries with no direct edits needed. Redesign remaining structure per Phase 2 (Inbox, Today, Upcoming, Areas→Projects tree, Tags).
+- **Header**: `src/app/core-ui/main-header/main-header.component.ts` — time-tracking play-button/pill, focus-mode button, and multi-profile switcher are already flag-gated; keep sync icon (data compatibility needs sync to keep working) and panel toggle.
+- **Right/bottom panel content**: `src/app/features/right-panel/right-panel-content.component.ts` — already conditionally renders `IssuePanelComponent`/`ScheduleDayPanelComponent` only when their layout-state flags are true, and nothing sets those flags anymore once `isIssuesPanelEnabled`/`isScheduleDayPanelEnabled` are off. Keep `TaskDetailPanelComponent` (+ note panel — kept per the screenshots' "Notes" field).
+- **Mobile bottom nav**: `src/app/core-ui/mobile-bottom-nav/` — this is the primary nav surface since only mobile matters. Watch for hardcoded (non-flag-gated) shortcuts here specifically — found and fixed one pointing at the deleted `/planner` route.
+- **NgRx registration**: `src/app/root-store/feature-stores.module.ts` — leaving reducers/effects for cut features registered but unreachable (no UI dispatches their actions anymore) is the safer trade versus touching meta-reducer ordering/store wiring; revisit only once there's a real build/test loop to verify against.
+- **Electron**: not required since desktop is out of scope — leave electron alone entirely and just don't build it.
+- **Settings/config UI** (`src/app/features/config/`): trim the App Features form (`form-cfgs/app-features-form.const.ts`) to only the kept toggles, so users can't re-enable a feature whose route no longer exists (would produce a dead link). Underlying `GlobalConfig` model fields stay untouched.
+
+### Phase 2 — Shell & component redesign (concrete Things3 reference)
+
+Build against the screenshots, using the token system in `docs/styling-guide.md` (8px spacing scale, `--font-size-*`, `--text-color`/`--card-bg`, `--z-*`) rather than new hardcoded values. Treat any further screenshots as refinements to this, not a separate blocked phase.
+
+**Side nav** (`magic-side-nav/`, `magic-nav-config.service.ts`, mobile nav is the primary target):
+- Pinned "Quick Find" search bar at the top — an inline/overlay filter across tasks, not the existing standalone Search *page*/route. Drop that page/route; keep (or rebuild small) whatever task-filtering logic it used, surfaced as this inline affordance instead.
+- Six smart-list rows, each with a distinct icon+color and a trailing count badge: **Inbox** (unfiled tasks in the default project), **Today** (star, tasks due/planned today), **Upcoming** (calendar), **Anytime** (active tasks with no specific date — everything not in Today/Someday), **Someday** (deprioritized/no-date backlog), **Logbook** (done-task archive — the existing `archive` feature's view, just needs this framing/entry point rather than a separate "Done" collapsible panel buried in work-view).
+- Below that: flat un-grouped projects (small progress-ring icon per project, reuse `project-completion-stats.util.ts`), then collapsible **Area** sections (`menu-tree`) containing their member projects, indented, same progress-ring icons.
+- Bottom: Settings entry + a floating circular "+" add button (with a secondary chevron/menu for "new project" vs "new area") rather than a header-mounted add button.
+
+**Task row** (`src/app/features/tasks/task/task.component.*`, **1460-line hot path — AGENTS.md perf rule applies, verify against a large list on every change**): the screenshots show three states of the *same row*, not three components — this is the key structural decision.
+1. **Collapsed** (default): checkbox circle, optional star (Today flag), title, then only the small monochrome glyphs for facets actually set on that task (repeat, checklist, tag, notes, reminder-bell) — conditionally rendered, not a fixed icon grid; right-aligned single date/deadline badge ("13d left" style for deadlines, plain date otherwise).
+2. **Selected/focused** (tap once, in place): row gets a raised/card background; reveals a notes preview line and a colored date chip (e.g. red "Tomorrow" pill with calendar glyph, distinct from a deadline); the same facet glyphs become right-aligned tap targets instead of static indicators.
+3. **Expanded** (task detail, inline in the list — not a separate side panel on mobile): full notes text, checklist sub-items as their own rows (circle bullet + text + drag handle), colored tag pills, a "Today" row, a deadline row (flag + date + "N days left"), and a repeat-provenance line ("This is a copy of a repeating to-do — Repeat every month on the 3rd day"). A bottom selection toolbar appears (Move / Delete / "…") replacing most of today's per-row icon-button cluster and context menus.
+- This means the existing desktop-style `task-detail-panel` (opened in the right panel) should not be the mobile pattern — build the expand-in-place behavior on the row itself for mobile.
+- `swipe-block` (already used for swipe-to-complete/delete) stays as the underlying gesture primitive for states 1↔2.
+
+**Upcoming / day-timeline view** (redesign of the kept `schedule`/planner-backed Upcoming, not a calendar grid):
+- Chronological list grouped by date; each group is a large day-number + weekday divider ("22 / Tomorrow", "23 / Sunday") with a thin rule, not date pills or a grid.
+- Task rows inside a group are minimal (checkbox + title), with the **project name as a small muted second line** since this view spans projects.
+- External `calendar-integration` events render inline in the same date group as small colored-dot marker rows, read-only.
+- Same floating "+" add button, bottom-right, as the sidebar/project view.
+
+**Repeat configuration** (redesign of `task-repeat-cfg`'s settings dialog, model/logic unchanged):
+- One modal sheet (X close / checkmark confirm), not a settings-page form.
+- Segmented control: "After Completion" (relative — maps to the existing relative recurrence mode) vs. "Regularly" (fixed calendar recurrence — Every [interval], On [day], computed Next date, Ends Never/On/After-N) — both modes already exist in the repeat-cfg model, this is purely a UI reshape into two tabs with iOS-style wheel/stepper pickers instead of one long form.
+- Two linked-settings rows below the picker, each opening its own sub-picker: deadline offset ("Each copy has a deadline… N days earlier") and reminder time ("Each copy has a reminder at HH:MM") — configured as part of the repeat rule itself.
+
+**Theming** (`src/app/core/theme/`, `src/styles/_css-variables.scss`, `src/assets/themes/*.css`): theming mechanics don't matter to the user — don't spend effort collapsing the 16-skin system; just tune one default dark (the screenshots are all dark-mode) and light `_css-variables.scss` pair to match the screenshots' calm, high-whitespace, dark-slate palette, and leave the skin-switcher infrastructure alone.
+
+### Phase 3 — Further screenshot refinement
+
+Treat any additional Things3/Superlist screenshots the user sends as incremental refinements layered onto Phase 2's components (e.g. exact spacing, animation/transition details, additional smart-list or dialog patterns) rather than a new phase — fold them into the same components as they arrive.
+
+### Verification
+
+- Run `npm run checkFile <path>` on every `.ts`/`.scss` file touched.
+- Run `npm test` for touched services/reducers, especially anything in `root-store/meta/task-shared-meta-reducers/` if store registration changes there, and `src/app/op-log/validation/frozen-state.spec.ts` (must keep passing unmodified — it's the guard against exactly the kind of persisted-model breakage this plan is designed to avoid).
+- Do a data round-trip sanity check: export/backup data from a mainstream build (or use an existing fixture) and import it into the trimmed build to confirm nothing errors on hydration — this directly tests the "mainstream-compatible" requirement, not just that the app boots.
+- Build and run the Android (and/or iOS) app via Capacitor and manually click through: create/complete a task, add it to a project inside an area, tag it, set a due date + reminder, mark it recurring, view it in Today/Upcoming and in the Schedule calendar view, attach a file — i.e. exercise every item on the confirmed keep-list end to end on a real device/emulator.
+- It's fine if `ng serve`/Electron no longer fully build after Phase 1 — don't spend time preserving them unless it's free.
+
+### Open items
+
+- Project notes and file-attachment panels are being kept by inference (attachments explicitly requested; notes confirmed by the project-view screenshots showing a "Notes" field) — low risk either way.
+- The plugin system's UI entry points are removed from nav (matches neither reference app) but the plugin runtime itself is left in place, untouched, for compatibility/low-risk reasons.
+- Making the task row's inline expand/collapse/detail states (Phase 2) the mobile interaction model is a real structural UI change, not just trimming — it's the single largest build item in this plan and worth treating as its own milestone with its own review, separate from the mechanical Phase 1 cuts.
+
+## Implementation status
+
+- **Phase 1**: mechanical scope cut implemented on branch `wip/claude` (commit `04bc487`). Routes/pages removed for Planner board, Boards, Habits, Donate, plus History/Worklog/Quick-History/Daily-Summary/Metrics sub-routes. `AppFeaturesConfig` defaults flipped off for everything out of scope. Settings → App Features form trimmed to match. Fixed the hardcoded `/planner` mobile-nav shortcut. Dropped dead History/Metrics entries from the project/tag context menu. NgRx de-registration in `feature-stores.module.ts` deliberately skipped for now (left registered but unreachable) as the lower-risk option.
+- **Not yet verified**: this was built in a sandbox with no network access to the npm registry — no `node_modules`, so no `npm install`, lint, unit tests, or build/APK were possible there. Needs a real `npm install` + `checkFile`/`npm test`/build pass before trusting it.
+- **Phase 2**: not started yet.
